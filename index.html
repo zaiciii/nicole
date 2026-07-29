@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Monthsary, Baby 💖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  /* ============================================================
+     EDIT-ME ZONE:
+     - "Bea" / "Your Name"      -> your names, appear in a couple spots
+     - PAGES array near bottom  -> the message AND photo for each page.
+                                    Each page has a "photo" field like
+                                    "page-2.jpg" — put an image with that
+                                    exact filename next to this HTML file
+                                    and it'll show automatically. Until
+                                    you add a file, the page just falls
+                                    back to the little icon, so nothing
+                                    ever looks broken.
+     - GIFTS array               -> same deal: each gift has a "photo"
+                                    field ("gift-1.jpg" etc.)
+     - <audio> tag below        -> put your own mp3 next to this file
+                                    and set src="your-song.mp3", then
+                                    the song button will play it
+                                    (left empty — can't ship someone
+                                    else's copyrighted song here)
+     - "begging.jpg"             -> photo shown after she clicks "No"
+                                    four times (falls back to an icon
+                                    same as everything else)
+     ============================================================ */
+
+  :root{
+    --cream:#FFF6E9;
+    --hotpink:#FF4D8D;
+    --navy:#22264A;
+    --mint:#8FD9C4;
+    --mustard:#F6B93B;
+    --paper:#FFFDF8;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    background:var(--cream);
+    background-image:radial-gradient(circle, rgba(34,38,74,0.08) 1.5px, transparent 1.5px);
+    background-size:22px 22px;
+    color:var(--navy);
+    font-family:'Quicksand', sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  h1,h2,.display{font-family:'Fredoka', sans-serif; font-weight:600; margin:0;}
+
+  #hearts-canvas{
+    position:fixed; top:0; left:0;
+    width:100%; height:100%;
+    pointer-events:none; z-index:0;
+  }
+
+  #confetti-canvas{
+    position:fixed; top:0; left:0;
+    width:100%; height:100%;
+    pointer-events:none; z-index:999;
+  }
+
+  .stage{
+    position:relative;
+    z-index:1;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px 14px;
+  }
+
+  .book{max-width:520px; width:100%;}
+
+  .dots{display:flex; justify-content:center; gap:8px; margin-bottom:18px;}
+
+  .dot{
+    width:9px; height:9px; border-radius:50%;
+    background:rgba(34,38,74,0.18);
+    transition:background 0.25s, transform 0.25s;
+  }
+
+  .dot.active{background:var(--hotpink); transform:scale(1.3);}
+
+  .page-card{
+    background:var(--paper);
+    border-radius:22px;
+    box-shadow:0 10px 0 rgba(34,38,74,0.12);
+    padding:34px 28px 28px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    animation:fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn{
+    from{opacity:0; transform:translateY(8px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .chapter-tag{
+    display:inline-block;
+    font-family:'Fredoka',sans-serif;
+    font-size:12px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    background:var(--navy);
+    color:var(--cream);
+    padding:5px 14px;
+    border-radius:999px;
+    transform:rotate(-2deg);
+    margin-bottom:16px;
+  }
+
+  .illustration{width:150px; height:150px; margin:0 auto 16px;}
+
+  .media-slot{margin:0 auto 16px;}
+
+  .page-photo{
+    display:block;
+    margin:0 auto;
+    object-fit:cover;
+    border-radius:16px;
+    box-shadow:0 6px 0 rgba(34,38,74,0.12);
+    background:var(--mint);
+  }
+
+  .page-title{
+    font-size:24px;
+    color:var(--hotpink);
+    text-shadow:2px 2px 0 var(--navy);
+    margin-bottom:12px;
+    line-height:1.2;
+  }
+
+  .page-text{
+    font-size:16px;
+    line-height:1.6;
+    max-width:380px;
+    margin:0 auto;
+    opacity:0.9;
+  }
+
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:24px;
+    gap:12px;
+  }
+
+  .btn{
+    font-family:'Fredoka',sans-serif;
+    font-size:15px;
+    background:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 4px 0 rgba(34,38,74,0.15);
+    transition:transform 0.1s;
+    color:var(--navy);
+  }
+
+  .btn.primary{background:var(--hotpink); color:white; box-shadow:0 4px 0 #B8285F;}
+  .btn:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.15);}
+  .btn:disabled{opacity:0.35; cursor:default;}
+  .btn:disabled:active{transform:none;}
+
+  .page-count{font-size:13px; opacity:0.55; font-family:'Fredoka',sans-serif;}
+
+  #music-btn{
+    position:fixed;
+    top:16px;
+    right:16px;
+    z-index:50;
+    font-size:13px;
+    padding:10px 16px;
+  }
+
+  /* gate page, with the runaway No button */
+  .gate-buttons{
+    margin-top:22px;
+    position:relative;
+    height:56px;
+  }
+
+  #no-btn{
+    z-index:5;
+  }
+
+  /* gift picker */
+  .gift-grid{
+    display:flex;
+    gap:14px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin:20px 0;
+  }
+
+  .gift{
+    width:130px;
+    padding:14px 10px;
+    border-radius:16px;
+    background:var(--cream);
+    border:3px solid transparent;
+    cursor:pointer;
+    transition:transform 0.15s, border-color 0.15s;
+  }
+
+  .gift:hover{transform:translateY(-3px);}
+  .gift.selected{border-color:var(--hotpink); background:#FFEAF2;}
+
+  .gift p{font-family:'Fredoka',sans-serif; font-size:13px; margin:0;}
+
+  .gift-result{
+    background:var(--cream);
+    border-radius:16px;
+    padding:18px;
+    margin:16px 0;
+    font-family:'Fredoka',sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="hearts-canvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
+
+<button class="btn primary" id="music-btn">Play song 🎵</button>
+
+<div class="stage">
+  <div class="book">
+    <div class="dots" id="dots"></div>
+    <div class="page-card" id="page-card"></div>
+    <div class="nav-row" id="nav-row">
+      <span class="page-count" id="page-count"></span>
+      <button class="btn primary" id="next-btn">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- Put an mp3 next to this file and set the src below, e.g. src="song.mp3" -->
+<audio id="bg-music" loop></audio>
+
+<script>
+  const NS = "http://www.w3.org/2000/svg";
+  function svg(inner){ return `<svg viewBox="0 0 200 200" xmlns="${NS}">${inner}</svg>`; }
+
+  const ART = {
+    heart: svg(`
+      <path d="M100 165 C40 120 20 80 45 55 C65 35 95 45 100 70 C105 45 135 35 155 55 C180 80 160 120 100 165 Z" fill="#FF4D8D"/>
+    `),
+    sparkleHeart: svg(`
+      <path d="M100 165 C40 120 20 80 45 55 C65 35 95 45 100 70 C105 45 135 35 155 55 C180 80 160 120 100 165 Z" fill="#FF4D8D"/>
+      <circle cx="45" cy="40" r="6" fill="#F6B93B"/>
+      <circle cx="160" cy="45" r="4" fill="#8FD9C4"/>
+      <circle cx="150" cy="90" r="5" fill="#F6B93B"/>
+    `),
+    couple: svg(`
+      <circle cx="70" cy="110" r="34" fill="#8FD9C4"/>
+      <circle cx="130" cy="110" r="34" fill="#FF4D8D"/>
+      <path d="M60 95 Q100 70 140 95" stroke="#22264A" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <circle cx="60" cy="105" r="5" fill="#22264A"/>
+      <circle cx="80" cy="105" r="5" fill="#22264A"/>
+      <circle cx="120" cy="105" r="5" fill="#22264A"/>
+      <circle cx="140" cy="105" r="5" fill="#22264A"/>
+    `),
+    magic: svg(`
+      <circle cx="100" cy="100" r="55" fill="#F6B93B"/>
+      <path d="M100 40 L108 60 L128 62 L112 76 L118 96 L100 84 L82 96 L88 76 L72 62 L92 60 Z" fill="#FFFDF8"/>
+      <circle cx="40" cy="50" r="6" fill="#FF4D8D"/>
+      <circle cx="165" cy="140" r="8" fill="#8FD9C4"/>
+    `),
+    gift: svg(`
+      <rect x="40" y="90" width="120" height="75" rx="8" fill="#FF4D8D"/>
+      <rect x="40" y="90" width="120" height="22" fill="#22264A"/>
+      <rect x="92" y="90" width="16" height="75" fill="#F6B93B"/>
+      <path d="M60 90 Q75 55 100 90 Q125 55 140 90" fill="none" stroke="#8FD9C4" stroke-width="8"/>
+    `),
+    hug: svg(`
+      <circle cx="100" cy="100" r="80" fill="#8FD9C4"/>
+      <path d="M60 95 a20 20 0 0 1 40 0 a20 20 0 0 1 40 0 q0 30 -40 55 q-40 -25 -40 -55 z" fill="#FFFDF8"/>
+    `),
+    letter: svg(`
+      <rect x="30" y="60" width="140" height="95" rx="8" fill="#FFFDF8" stroke="#22264A" stroke-width="5"/>
+      <path d="M30 65 L100 115 L170 65" fill="none" stroke="#FF4D8D" stroke-width="6"/>
+    `),
+    ticket: svg(`
+      <rect x="30" y="70" width="140" height="70" rx="10" fill="#F6B93B"/>
+      <circle cx="30" cy="105" r="10" fill="#FFF6E9"/>
+      <circle cx="170" cy="105" r="10" fill="#FFF6E9"/>
+      <path d="M70 70 V140" stroke="#FFFDF8" stroke-width="4" stroke-dasharray="6 6"/>
+    `),
+    hourglass: svg(`
+      <path d="M55 40 H145 L100 100 Z" fill="#8FD9C4"/>
+      <path d="M55 160 H145 L100 100 Z" fill="#FF4D8D"/>
+      <rect x="50" y="34" width="100" height="10" rx="4" fill="#22264A"/>
+      <rect x="50" y="156" width="100" height="10" rx="4" fill="#22264A"/>
+    `),
+    together: svg(`
+      <circle cx="100" cy="100" r="80" fill="#FF4D8D"/>
+      <path d="M60 95 a20 20 0 0 1 40 0 a20 20 0 0 1 40 0 q0 30 -40 55 q-40 -25 -40 -55 z" fill="#FFFDF8"/>
+    `),
+    pleading: svg(`
+      <path d="M100 165 C40 120 20 80 45 55 C65 35 95 45 100 70 C105 45 135 35 155 55 C180 80 160 120 100 165 Z" fill="#FF4D8D"/>
+      <circle cx="75" cy="72" r="6" fill="#22264A"/>
+      <circle cx="125" cy="72" r="6" fill="#22264A"/>
+      <path d="M72 85 Q100 78 128 85" stroke="#22264A" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M72 78 Q68 95 66 105" stroke="#8FD9C4" stroke-width="4" fill="none" stroke-linecap="round"/>
+    `),
+    flowers: svg(`
+      <path d="M100 120 L100 175" stroke="#8FD9C4" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="100" cy="80" r="16" fill="#F6B93B"/>
+      <circle cx="100" cy="60" r="13" fill="#FF4D8D"/>
+      <circle cx="118" cy="72" r="13" fill="#FF4D8D"/>
+      <circle cx="118" cy="92" r="13" fill="#FF4D8D"/>
+      <circle cx="100" cy="100" r="13" fill="#FF4D8D"/>
+      <circle cx="82" cy="92" r="13" fill="#FF4D8D"/>
+      <circle cx="82" cy="72" r="13" fill="#FF4D8D"/>
+      <circle cx="60" cy="140" r="14" fill="#F6B93B"/>
+      <circle cx="60" cy="123" r="10" fill="#8FD9C4"/>
+      <circle cx="75" cy="132" r="10" fill="#8FD9C4"/>
+      <circle cx="75" cy="150" r="10" fill="#8FD9C4"/>
+      <circle cx="60" cy="157" r="10" fill="#8FD9C4"/>
+      <circle cx="45" cy="150" r="10" fill="#8FD9C4"/>
+      <circle cx="45" cy="132" r="10" fill="#8FD9C4"/>
+    `),
+    kiss: svg(`
+      <circle cx="100" cy="100" r="80" fill="#FFD1E3"/>
+      <path d="M100 105 Q80 85 80 100 Q80 112 100 128 Q120 112 120 100 Q120 85 100 105 Z" fill="#FF4D8D"/>
+      <circle cx="150" cy="70" r="5" fill="#FF4D8D"/>
+      <circle cx="160" cy="90" r="4" fill="#FF4D8D"/>
+      <circle cx="45" cy="60" r="4" fill="#FF4D8D"/>
+    `),
+    mysteryBox: svg(`
+      <rect x="35" y="90" width="130" height="80" rx="10" fill="#22264A"/>
+      <rect x="35" y="90" width="130" height="24" fill="#FF4D8D"/>
+      <rect x="93" y="90" width="14" height="80" fill="#F6B93B"/>
+      <path d="M55 90 Q70 55 100 90 Q130 55 145 90" fill="none" stroke="#8FD9C4" stroke-width="7"/>
+      <text x="100" y="152" font-size="46" font-family="Fredoka, sans-serif" fill="#FFF6E9" text-anchor="middle" font-weight="700">?</text>
+    `)
+  };
+
+  // ---- EDIT ME: the 4 mystery gift boxes ----
+  // "photo" is the filename to drop next to this HTML file. Until it
+  // exists, the icon shown in "icon" is used instead.
+  // Boxes show as an unlabeled "?" until picked — she won't know which
+  // gift is behind which box, so the reveal is a surprise every time.
+  const GIFTS = [
+    {
+      name: "Flowers 💐",
+      revealTitle: "A little something bloomed for you 💐",
+      photo: "gift-1.jpg",
+      icon: ART.flowers,
+      result: "A whole bouquet, just because you exist and you're mine. Imagine the smell, Baby — I promise the real thing is coming."
+    },
+    {
+      name: "Hugs 🤗",
+      revealTitle: "Incoming hugs! 🤗",
+      photo: "gift-2.jpg",
+      icon: ART.hug,
+      result: "The tightest, longest hug I've got — the kind where neither of us wants to let go first."
+    },
+    {
+      name: "Kisses 💋",
+      revealTitle: "Pucker up, Baby 💋",
+      photo: "gift-3.jpg",
+      icon: ART.kiss,
+      result: "A thousand kisses, delivered with love. Forehead, cheek, all of it — consider yourself thoroughly kissed."
+    },
+    {
+      name: "1 Ticket 🎟️",
+      revealTitle: "Uh oh, you got the special one 🎟️",
+      photo: "gift-4.jpg",
+      icon: ART.ticket,
+      result: "One (1) ticket for a date with me — non-refundable, non-transferable, and yes, non-rejectable. You already said yes, Baby, I just haven't told you when yet 😌"
+    }
+  ];
+
+  // ---- EDIT ME: the story ----
+  const PAGES = [
+    {
+      tag: "For you",
+      photo: "page-1.jpg",
+      art: ART.sparkleHeart,
+      title: "I made something for you ❤️",
+      text: "Do you want to see it?",
+      gate: true
+    },
+    {
+      tag: "Page 2",
+      photo: "page-2.jpg",
+      art: ART.heart,
+      title: "Yay! Let's start 💕",
+      text: "Get comfy, Baby. This one's all about you."
+    },
+    {
+      tag: "Page 3",
+      photo: "page-3.jpg",
+      art: ART.couple,
+      title: "You make my heart skip a beat, Baby ❤️",
+      text: "Every single time. No exceptions, no explanation, it just does."
+    },
+    {
+      tag: "Page 4",
+      photo: "page-4.jpg",
+      art: ART.magic,
+      title: "Every moment with you is magic, Baby",
+      text: "Even the boring ones. Somehow you make grocery runs feel like a date."
+    },
+    {
+      tag: "Page 5",
+      photo: "page-5.jpg",
+      art: ART.gift,
+      title: "Pick a mystery gift, Baby 🎁",
+      text: "You don't get to know what's inside until you pick! You can only open one at a time, but you can come back and open another later.",
+      giftPicker: true
+    },
+    {
+      tag: "Page 5.5",
+      art: null,
+      title: "Your gift, Baby! 🎁",
+      giftResult: true
+    },
+    {
+      tag: "Page 6",
+      photo: "page-6.jpg",
+      art: ART.hug,
+      title: "You're beautiful inside and out, Baby 🥰",
+      text: "The kind of beautiful that makes ordinary days feel a little unfair to everyone else."
+    },
+    {
+      tag: "Page 7",
+      photo: "page-7.jpg",
+      art: ART.ticket,
+      title: "Remember our first date, Baby? ❤️",
+      text: "I was way more nervous than I let on. Worth every second of it."
+    },
+    {
+      tag: "Page 8",
+      photo: "page-8.jpg",
+      art: ART.hourglass,
+      title: "Almost there, Baby... 💌",
+      text: "Just one more page. Promise it's worth the wait."
+    },
+    {
+      tag: "Happy Monthsary",
+      photo: "page-9.jpg",
+      art: ART.together,
+      title: "Happy Monthsary, Baby! 💖",
+      text: "I love you so much. Thank you for the best month I've had in a long time — here's to a whole lot more of these.",
+      finale: true
+    }
+  ];
+
+  let current = 0;
+  let selectedGift = null;
+  let noClicks = 0;
+
+  const dotsEl = document.getElementById('dots');
+  const cardEl = document.getElementById('page-card');
+  const navRow = document.getElementById('nav-row');
+  const nextBtn = document.getElementById('next-btn');
+  const countEl = document.getElementById('page-count');
+
+  function renderDots(){
+    dotsEl.innerHTML = PAGES.map((_, i) =>
+      `<div class="dot ${i === current ? 'active' : ''}"></div>`
+    ).join('');
+  }
+
+  function goTo(i){ current = i; renderPage(); }
+
+  // Puts a real photo in a slot if one exists at that filename,
+  // otherwise silently falls back to the SVG icon so nothing breaks.
+  function mountMedia(slotId, photoSrc, fallbackArt, size){
+    const slot = document.getElementById(slotId);
+    if(!slot) return;
+    if(!photoSrc){
+      slot.innerHTML = `<div class="illustration" style="width:${size}px;height:${size}px;">${fallbackArt}</div>`;
+      return;
+    }
+    const img = document.createElement('img');
+    img.className = 'page-photo';
+    img.src = photoSrc;
+    img.alt = '';
+    img.style.width = size + 'px';
+    img.style.height = size + 'px';
+    img.addEventListener('error', () => {
+      slot.innerHTML = `<div class="illustration" style="width:${size}px;height:${size}px;">${fallbackArt}</div>`;
+    }, { once: true });
+    slot.appendChild(img);
+  }
+
+  function placeNoButtonRandomly(btn){
+    const w = 90, h = 48;
+    const maxX = window.innerWidth - w - 16;
+    const maxY = window.innerHeight - h - 16;
+    const x = Math.max(16, Math.random() * maxX);
+    const y = Math.max(16, Math.random() * maxY);
+    btn.style.position = 'fixed';
+    btn.style.left = x + 'px';
+    btn.style.top = y + 'px';
+  }
+
+  function showBegging(){
+    navRow.style.display = 'none';
+    cardEl.innerHTML = `
+      <span class="chapter-tag">Okay okay</span>
+      <div class="media-slot" id="media-slot"></div>
+      <h1 class="page-title">Can you please say Yes baby?🥺</h1>
+      <button class="btn primary" id="fine-btn" style="margin-top:20px;">Fine</button>
+    `;
+    mountMedia('media-slot', 'begging.jpg', ART.pleading, 170);
+    document.getElementById('fine-btn').addEventListener('click', () => {
+      noClicks = 0;
+      goTo(1);
+    });
+  }
+
+  function renderPage(){
+    const p = PAGES[current];
+    navRow.style.display = (p.gate || p.giftPicker || p.giftResult) ? 'none' : 'flex';
+
+    if(p.gate){
+      noClicks = 0;
+      cardEl.innerHTML = `
+        <span class="chapter-tag">${p.tag}</span>
+        <div class="media-slot" id="media-slot"></div>
+        <h1 class="page-title">${p.title}</h1>
+        <p class="page-text">${p.text}</p>
+        <div class="gate-buttons">
+          <button class="btn primary" id="yes-btn" style="position:absolute; left:calc(50% - 90px); top:0;">Yes</button>
+          <button class="btn" id="no-btn" style="position:absolute; left:calc(50% + 10px); top:0;">No</button>
+        </div>
+      `;
+      mountMedia('media-slot', p.photo, p.art, 150);
+      document.getElementById('yes-btn').addEventListener('click', () => goTo(current + 1));
+      const noBtn = document.getElementById('no-btn');
+      const dodge = (e) => {
+        e.preventDefault();
+        noClicks++;
+        if(noClicks >= 4){
+          showBegging();
+        } else {
+          placeNoButtonRandomly(noBtn);
+        }
+      };
+      noBtn.addEventListener('mouseenter', dodge);
+      noBtn.addEventListener('click', dodge);
+      noBtn.addEventListener('touchstart', dodge, { passive: false });
+    } else if(p.giftPicker){
+      cardEl.innerHTML = `
+        <span class="chapter-tag">${p.tag}</span>
+        <h1 class="page-title">${p.title}</h1>
+        <p class="page-text">${p.text}</p>
+        <div class="gift-grid" id="gift-grid"></div>
+        <button class="btn primary" id="gift-next-btn" style="margin-top:10px;">Next</button>
+      `;
+      const grid = document.getElementById('gift-grid');
+      GIFTS.forEach((g, i) => {
+        const div = document.createElement('div');
+        div.className = 'gift' + (selectedGift === i ? ' selected' : '');
+        div.innerHTML = `<div class="media-slot" id="gift-media-${i}"></div><p>Mystery Gift ${i + 1}</p>`;
+        div.addEventListener('click', () => {
+          selectedGift = i;
+          document.querySelectorAll('.gift').forEach(el => el.classList.remove('selected'));
+          div.classList.add('selected');
+          const rect = div.getBoundingClientRect();
+          burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 36);
+        });
+        grid.appendChild(div);
+        // Sealed box only — the real gift stays hidden until she picks it
+        mountMedia(`gift-media-${i}`, null, ART.mysteryBox, 56);
+      });
+      document.getElementById('gift-next-btn').addEventListener('click', () => {
+        if(selectedGift === null){
+          burst(window.innerWidth / 2, 80, 20);
+          return;
+        }
+        goTo(current + 1);
+      });
+    } else if(p.giftResult){
+      const g = GIFTS[selectedGift] || GIFTS[0];
+      cardEl.innerHTML = `
+        <span class="chapter-tag">${p.tag}</span>
+        <h1 class="page-title">${g.revealTitle || p.title}</h1>
+        <div class="gift-result">
+          <div class="media-slot" id="media-slot"></div>
+          <p style="font-family:'Fredoka',sans-serif; margin:0 0 6px;">${g.name}</p>
+          <p style="font-family:'Quicksand',sans-serif; font-size:14px; margin:0; opacity:0.85;">${g.result}</p>
+        </div>
+        <button class="btn" id="pick-again-btn">Pick another gift</button>
+        <button class="btn primary" id="result-next-btn" style="margin-left:8px;">Next</button>
+      `;
+      mountMedia('media-slot', g.photo, g.icon, 70);
+      document.getElementById('pick-again-btn').addEventListener('click', () => goTo(current - 1));
+      document.getElementById('result-next-btn').addEventListener('click', () => goTo(current + 1));
+    } else {
+      cardEl.innerHTML = `
+        <span class="chapter-tag">${p.tag}</span>
+        <div class="media-slot" id="media-slot"></div>
+        <h1 class="page-title">${p.title}</h1>
+        <p class="page-text">${p.text}</p>
+        ${p.finale ? '<button class="btn primary" id="celebrate-btn" style="margin-top:20px;">Celebrate</button>' : ''}
+      `;
+      mountMedia('media-slot', p.photo, p.art, 150);
+      if(p.finale){
+        document.getElementById('celebrate-btn').addEventListener('click', () =>
+          burst(window.innerWidth / 2, window.innerHeight / 2, 180)
+        );
+        burst(window.innerWidth / 2, window.innerHeight / 3, 120);
+      }
+    }
+
+    cardEl.style.animation = 'none';
+    void cardEl.offsetWidth;
+    cardEl.style.animation = 'fadeIn 0.4s ease';
+
+    nextBtn.textContent = current === PAGES.length - 1 ? 'Restart' : 'Next';
+    countEl.textContent = `${current + 1} / ${PAGES.length}`;
+    renderDots();
+  }
+
+  nextBtn.addEventListener('click', () => {
+    goTo(current < PAGES.length - 1 ? current + 1 : 0);
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowRight' && navRow.style.display !== 'none') nextBtn.click();
+  });
+
+  renderPage();
+
+  // ---- song button ----
+  const musicBtn = document.getElementById('music-btn');
+  const bgMusic = document.getElementById('bg-music');
+  musicBtn.addEventListener('click', () => {
+    if(bgMusic.paused){
+      bgMusic.play().catch(() => {});
+      musicBtn.textContent = 'Pause song ⏸️';
+    } else {
+      bgMusic.pause();
+      musicBtn.textContent = 'Play song 🎵';
+    }
+  });
+
+  // ---- floating hearts background ----
+  const heartsCanvas = document.getElementById('hearts-canvas');
+  const hCtx = heartsCanvas.getContext('2d');
+  function resizeHearts(){ heartsCanvas.width = window.innerWidth; heartsCanvas.height = window.innerHeight; }
+  resizeHearts();
+  window.addEventListener('resize', resizeHearts);
+
+  const heartColors = ['#FF4D8D', '#F6B93B', '#8FD9C4'];
+  const hearts = [];
+  for(let i = 0; i < 22; i++){
+    hearts.push({
+      x: Math.random() * heartsCanvas.width,
+      y: Math.random() * heartsCanvas.height,
+      size: Math.random() * 6 + 4,
+      speed: Math.random() * 0.4 + 0.2,
+      color: heartColors[Math.floor(Math.random() * heartColors.length)]
+    });
+  }
+
+  function drawHeart(ctx, x, y, size, color){
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.35;
+    ctx.beginPath();
+    ctx.moveTo(0, size / 4);
+    ctx.bezierCurveTo(0, 0, -size / 2, 0, -size / 2, size / 4);
+    ctx.bezierCurveTo(-size / 2, size / 2, 0, size * 0.7, 0, size);
+    ctx.bezierCurveTo(0, size * 0.7, size / 2, size / 2, size / 2, size / 4);
+    ctx.bezierCurveTo(size / 2, 0, 0, 0, 0, size / 4);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function floatHearts(){
+    hCtx.clearRect(0, 0, heartsCanvas.width, heartsCanvas.height);
+    hearts.forEach(h => {
+      drawHeart(hCtx, h.x, h.y, h.size, h.color);
+      h.y -= h.speed;
+      if(h.y < -20) h.y = heartsCanvas.height + 20;
+    });
+    requestAnimationFrame(floatHearts);
+  }
+  floatHearts();
+
+  // ---- confetti burst (gift picks + finale) ----
+  const confettiCanvas = document.getElementById('confetti-canvas');
+  const cCtx = confettiCanvas.getContext('2d');
+  function resizeConfetti(){ confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight; }
+  resizeConfetti();
+  window.addEventListener('resize', resizeConfetti);
+
+  const confettiColors = ['#FF4D8D', '#F6B93B', '#8FD9C4', '#22264A'];
+  let particles = [];
+
+  function burst(x, y, count){
+    for(let i = 0; i < count; i++){
+      particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 12,
+        vy: (Math.random() - 1.3) * 12,
+        size: Math.random() * 6 + 3,
+        color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+        rotation: Math.random() * 360,
+        vr: (Math.random() - 0.5) * 10,
+        life: 100
+      });
+    }
+    animateConfetti();
+  }
+
+  let confettiRunning = false;
+  function animateConfetti(){
+    if(confettiRunning) return;
+    confettiRunning = true;
+    (function frame(){
+      cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.35;
+        p.rotation += p.vr; p.life -= 1.4;
+        cCtx.save();
+        cCtx.translate(p.x, p.y);
+        cCtx.rotate(p.rotation * Math.PI / 180);
+        cCtx.fillStyle = p.color;
+        cCtx.globalAlpha = Math.max(p.life / 100, 0);
+        cCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        cCtx.restore();
+      });
+      particles = particles.filter(p => p.life > 0);
+      if(particles.length > 0){
+        requestAnimationFrame(frame);
+      } else {
+        cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        confettiRunning = false;
+      }
+    })();
+  }
+</script>
+
+</body>
+</html>
+
